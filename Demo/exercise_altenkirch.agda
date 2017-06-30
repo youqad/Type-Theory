@@ -1,4 +1,4 @@
-open import Dat.Nat
+open import Data.Nat
 
 module exercise_altenkirch where
 
