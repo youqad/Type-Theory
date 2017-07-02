@@ -3,6 +3,7 @@ open import Data.Unit
 open import Data.Vec
 open import Relation.Binary.PropositionalEquality
 open import Relation.Nullary
+open import Data.Empty
 open import Data.Product
 import Level
 
