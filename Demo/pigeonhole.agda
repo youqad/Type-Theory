@@ -26,4 +26,4 @@ module pigeonhole {X : Set} where
   ∈-delete x (x₁ ∷ []) = λ x₂ → [] , (λ x₃ x₄ → {!!})
   ∈-delete x (x₁ ∷ x₂ ∷ l) = {!!}
 
-
+ f
