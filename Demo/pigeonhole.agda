@@ -35,5 +35,12 @@ module pigeonhole {X : Set} where
       lemma₂ : {x y : X} → y ≢ x → y ∈ x ∷ x₂ ∷ l → y ∈ x₂ ∷ l
       lemma₂ y≢x here = ⊥-elim (y≢x refl)
       lemma₂ y≢x (there y∈x∷x₂∷l) = y∈x∷x₂∷l
-  ∈-delete x (x₁ ∷ x₂ ∷ l) (there x∈l) = let l' , _ = ∈-delete x (x₂ ∷ l) x∈l
-                                         in (x₁ ∷ l') , {!!}
+  ∈-delete x (x₁ ∷ x₂ ∷ l) (there x∈l) = let l' , p = ∈-delete x (x₂ ∷ l) x∈l
+                                         in (x₁ ∷ l') , lemma₃ {p}
+                                           where
+                                             lemma₃ : {p : ∀ {y'} → y' ≢ x → y' ∈ (x₂ ∷ l) → y' ∈ proj₁ (∈-delete x (x₂ ∷ l) x∈l)}
+                                                      → {y : X}
+                                                      → y ≢ x → y ∈ x₁ ∷ x₂ ∷ l
+                                                      → y ∈ x₁ ∷ proj₁ (∈-delete x (x₂ ∷ l) x∈l)
+                                             lemma₃ y≢x here = here
+                                             lemma₃ {p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
