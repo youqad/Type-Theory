@@ -2,6 +2,7 @@ open import Data.Nat
 open import Relation.Nullary
 open import Data.Vec
 open import Data.Product
+open import Data.Empty
 
 open import Relation.Binary.PropositionalEquality
 
@@ -23,7 +24,11 @@ module pigeonhole {X : Set} where
 
   ∈-delete : ∀ {n} → (x : X) → (l : Vec X (suc n)) → x ∈ l
              → Σ[ l' ∈ Vec X n ] (∀ {y} → y ≢ x → y ∈ l → y ∈ l')
-  ∈-delete x (x₁ ∷ []) = λ x₂ → [] , (λ x₃ x₄ → {!!})
-  ∈-delete x (x₁ ∷ x₂ ∷ l) = {!!}
-
- f
+  ∈-delete x (.x ∷ []) here = [] , (λ x₁ x₂ → {!!})
+  ∈-delete x (x₁ ∷ []) (there x∈l) = {!!}
+  ∈-delete x (x₁ ∷ x₂ ∷ l) x∈l = {!!}
+  -- ∈-delete x (.x ∷ []) here = [] , ?
+  --   where
+  --     lemma : {x y : X} → y ≢ x → y ∈ x ∷ [] → y ∈ []
+  --     lemma y≢x here = ⊥-elim (y≢x refl)
+  --     lemma y≢x (there ())
