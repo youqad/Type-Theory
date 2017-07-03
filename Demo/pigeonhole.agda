@@ -19,6 +19,7 @@ module pigeonhole {X : Set} where
   repeats : ∀ {n} → Vec X n → Set
   repeats l = ¬ not-repeats l
 
+
   _↪_ : ∀ {n m} → Vec X n → Vec X m → Set
   l ↪ l' = ∀ {x} → x ∈ l → x ∈ l'
 
@@ -44,3 +45,6 @@ module pigeonhole {X : Set} where
                                                       → y ∈ x₁ ∷ proj₁ (∈-delete x (x₂ ∷ l) x∈l)
                                              lemma₃ y≢x here = here
                                              lemma₃ {p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
+
+
+  pigeonhole : ∀ {n m} (l₁ : Vec X n) (l₂ : Vec X m) → 
