@@ -24,11 +24,16 @@ module pigeonhole {X : Set} where
 
   ∈-delete : ∀ {n} → (x : X) → (l : Vec X (suc n)) → x ∈ l
              → Σ[ l' ∈ Vec X n ] (∀ {y} → y ≢ x → y ∈ l → y ∈ l')
-  ∈-delete x (.x ∷ []) here = [] , (λ x₁ x₂ → {!!})
-  ∈-delete x (x₁ ∷ []) (there x∈l) = {!!}
-  ∈-delete x (x₁ ∷ x₂ ∷ l) x∈l = {!!}
-  -- ∈-delete x (.x ∷ []) here = [] , ?
-  --   where
-  --     lemma : {x y : X} → y ≢ x → y ∈ x ∷ [] → y ∈ []
-  --     lemma y≢x here = ⊥-elim (y≢x refl)
-  --     lemma y≢x (there ())
+  ∈-delete x (.x ∷ []) here = [] , lemma {x}
+    where
+      lemma : {x y : X} → y ≢ x → y ∈ x ∷ [] → y ∈ []
+      lemma y≢x here = ⊥-elim (y≢x refl)
+      lemma y≢x (there ())
+  ∈-delete x (x₁ ∷ []) (there ())
+  ∈-delete x (.x ∷ x₂ ∷ l) here = (x₂ ∷ l) , lemma₂ {x}
+    where
+      lemma₂ : {x y : X} → y ≢ x → y ∈ x ∷ x₂ ∷ l → y ∈ x₂ ∷ l
+      lemma₂ y≢x here = ⊥-elim (y≢x refl)
+      lemma₂ y≢x (there y∈x∷x₂∷l) = y∈x∷x₂∷l
+  ∈-delete x (x₁ ∷ x₂ ∷ l) (there x∈l) = let l' , _ = ∈-delete x (x₂ ∷ l) x∈l
+                                         in (x₁ ∷ l') , {!!}
