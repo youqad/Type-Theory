@@ -47,4 +47,4 @@ module pigeonhole {X : Set} where
                                              lemma₃ {p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
 
 
-  pigeonhole : ∀ {n m} (l₁ : Vec X n) (l₂ : Vec X m) → 
+  pigeonhole : ∀ {n m} (l₁ : Vec X n) (l₂ : Vec X m) → l₁   
