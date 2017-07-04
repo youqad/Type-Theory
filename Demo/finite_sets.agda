@@ -39,5 +39,3 @@ module _ where
       invCount k (zero {n}) rewrite suc-sym k n = iterateS n k
       invCount k (suc {n} s) rewrite suc-sym n k = invCount (suc k) s
 
-  
-
