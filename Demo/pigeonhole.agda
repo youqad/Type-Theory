@@ -47,4 +47,22 @@ module pigeonhole {X : Set} where
                                              lemma₃ {p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
 
 
-  pigeonhole : ∀ {n m} (l₁ : Vec X n) (l₂ : Vec X m) → l₁   
+  pigeonhole : ∀ {n m} (l₁ : Vec X n) (l₂ : Vec X m) → l₁ ↪ l₂ → m < n → repeats l₁
+  pigeonhole [] l₂ l₁↪l₂ ()
+  pigeonhole (x ∷ l₁) [] x∷l₁↪l₂ m<n _ with (x∷l₁↪l₂ {x} here)
+  ... | ()
+  pigeonhole {suc n} {suc m} l₁@(x ∷ l₁') l₂@(_ ∷ _) x∷l₁↪l₂ suc-m<suc-n
+             (rec-not-repeats not-repeats-l₁' x∉l₁') with (x∷l₁↪l₂ {x} here)
+  ... | x∈l₂ with (∈-delete x l₂ x∈l₂)
+  ...           | (l₂' , p) = ⊥-elim ((pigeonhole l₁' l₂' l₁'↪l₂' m<n) not-repeats-l₁')
+                              where
+                                l₁'↪l₂' : ∀ {x'} → x' ∈ l₁' → x' ∈ l₂'
+                                l₁'↪l₂' {x'} x'∈l₁' with (x∷l₁↪l₂ (there x'∈l₁'))
+                                ... | here = {!!}
+                                             where
+                                               not-in-not-equal : ∀ {k} {y x' : X} {l : Vec X k} → (y ∈ l) → ¬ (x' ∈ l) → y ≢ x'
+                                               not-in-not-equal y∈l x'∉l y≡x rewrite y≡x = ⊥-elim (x'∉l y∈l)
+                                ... | there _ = {!!}
+
+                                m<n : m < n
+                                m<n = {!!}
