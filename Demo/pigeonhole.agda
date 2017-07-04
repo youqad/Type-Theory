@@ -7,7 +7,7 @@ open import Data.Empty
 open import Relation.Binary.PropositionalEquality
 
 
--- adapted from https://github.com/youqad/Coq_Project/blob/master/pigeonhole.v
+-- inpired from https://github.com/youqad/Coq_Project/blob/master/pigeonhole.v
 
 module pigeonhole {X : Set} where
 
@@ -54,15 +54,15 @@ module pigeonhole {X : Set} where
   pigeonhole {suc n} {suc m} l₁@(x ∷ l₁') l₂@(_ ∷ _) x∷l₁↪l₂ suc-m<suc-n
              (rec-not-repeats not-repeats-l₁' x∉l₁') with (x∷l₁↪l₂ {x} here)
   ... | x∈l₂ with (∈-delete x l₂ x∈l₂)
-  ...           | (l₂' , p) = ⊥-elim ((pigeonhole l₁' l₂' l₁'↪l₂' m<n) not-repeats-l₁')
+  ...           | (l₂' , p) = ⊥-elim ((pigeonhole l₁' l₂' l₁'↪l₂' m<n) not-repeats-l₁') -- p : (∀ {y} → y ≢ x → y ∈ l₂ → y ∈ l₂')
                               where
                                 l₁'↪l₂' : ∀ {x'} → x' ∈ l₁' → x' ∈ l₂'
-                                l₁'↪l₂' {x'} x'∈l₁' with (x∷l₁↪l₂ (there x'∈l₁'))
-                                ... | here = {!!}
-                                             where
-                                               not-in-not-equal : ∀ {k} {y x' : X} {l : Vec X k} → (y ∈ l) → ¬ (x' ∈ l) → y ≢ x'
-                                               not-in-not-equal y∈l x'∉l y≡x rewrite y≡x = ⊥-elim (x'∉l y∈l)
-                                ... | there _ = {!!}
+                                l₁'↪l₂' {x'} x'∈l₁' = let x'∈l₂ = (x∷l₁↪l₂ (there x'∈l₁')) -- x' ∈ l₂ ≡ l₂' ∪ x
+                                                      in p (not-in-not-equal x'∈l₁' x∉l₁') x'∈l₂
+                                                        where
+                                                          not-in-not-equal : ∀ {k} {y x' : X} {l : Vec X k} → (y ∈ l) → ¬ (x' ∈ l) → y ≢ x'
+                                                          not-in-not-equal y∈l x'∉l y≡x rewrite y≡x = ⊥-elim (x'∉l y∈l)
 
                                 m<n : m < n
                                 m<n = {!!}
+
