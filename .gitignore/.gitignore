@@ -2,6 +2,7 @@
 
 ### Agda ###
 *.agdai
+Demo/*.agdai
 
 ### macOS ###
 *.DS_Store
