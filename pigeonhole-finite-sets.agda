@@ -1,4 +1,4 @@
-open import Data.Fin hiding (_<_ ; _≤_)
+open import Data.Fin
 open import Data.Fin.Properties
 open import Data.Nat.Base using (ℕ; zero; suc; z≤n; s≤s; _<_ ; _≤_)
 open import Relation.Nullary
@@ -22,22 +22,23 @@ data repeats : ∀ {X : Set} {n} → Vec X n → Set where
   rec-repeats : ∀ {X : Set} {x : X} {n : ℕ} {l : Vec X n} → repeats l → repeats (x ∷ l)
 
 
--- index : ∀ {n : ℕ} → ℕ → Vec ℕ n → Maybe ℕ
--- index _ [] = nothing
--- index x (y ∷ ys) with  x ≟ y
--- ... | yes _ = just zero
--- ... | no _  with index x ys
--- ...            | just n = just (suc n)
--- ...            | nothin = nothing
+index : ∀ {N n : ℕ} → (Fin N) → Vec (Fin N) n → Maybe (Fin N)
+index {zero} {_} ()
+index _ [] = nothing
+index {suc N} x (y ∷ ys) with Data.Fin.Properties._≟_ x y
+... | yes _ = just (zero {N})
+... | no _  with index x ys
+...            | just n = just ? -- suc n
+...            | nothing = nothing
 
--- index-sure : ∀ {n : ℕ} → (x : ℕ) → (l : Vec ℕ n) → x ∈ l → Σ[ m ∈ ℕ ] (Σ[ m<n ∈ m < n ] (lookup-nat m l m<n ≡ x))
--- index-sure _ [] ()
--- index-sure x (y ∷ ys) x∈y∷ys with Data.Nat.Base._≟_ x y
--- ... | yes x≡y = zero , ( s≤s z≤n , sym x≡y )
--- ... | no x≢y with index x ys | x∈y∷ys
--- ...             | _ | here = ⊥-elim (x≢y refl)
--- ...             | n | there x∈ys with index-sure x ys x∈ys
--- index-sure .(lookup-nat m ys m<n) (y ∷ ys) x∈y∷ys | no x≢y | n₁ | (there x∈ys) | (m , m<n , refl) = suc m , (s≤s m<n , refl)
+index-sure : ∀ {N n : ℕ} → (x : (Fin N)) → (l : Vec (Fin N) n) → x ∈ l → Σ[ m ∈ (Fin n) ] (lookup {A = Fin N} m l ≡ x)
+index-sure _ [] ()
+index-sure x (y ∷ ys) x∈y∷ys with Data.Fin.Properties._≟_ x y
+... | yes x≡y = zero , sym x≡y
+... | no x≢y with index x ys | x∈y∷ys
+...             | _ | here = ⊥-elim (x≢y refl)
+...             | n | there x∈ys with index-sure x ys x∈ys
+index-sure .(lookup m ys) (y ∷ ys) x∈y∷ys | no x≢y | n₁ | (there x∈ys) | (m , refl) = suc m , refl
 
 _∈?_ : ∀ {n m} (x : Fin n) (l : Vec (Fin n) m) → Dec (x ∈ l)
 x  ∈? [] = no λ()
@@ -95,7 +96,7 @@ l ↪ l' = ∀ {x} → x ∈ l → x ∈ l'
 
 
 
-pigeonhole-vec : ∀ {N n m : ℕ} (l₁ : Vec (Fin N) n) (l₂ : Vec (Fin N) m) → l₁ ↪ l₂ → m < n → repeats l₁
+pigeonhole-vec : ∀ {N n m : ℕ} (l₁ : Vec (Fin N) n) (l₂ : Vec (Fin N) m) → l₁ ↪ l₂ → Data.Nat.Base._<_ m n → repeats l₁
 pigeonhole-vec {zero} {.0} {m} [] l₂ l₁↪l₂ ()
 pigeonhole-vec {zero} {.(suc _)} {m} (x ∷ l₁) l₂ l₁↪l₂ m<n with x
 ... | ()
@@ -115,15 +116,15 @@ pigeonhole-vec {suc n} {suc m} l₁@(x ∷ l₁') l₂@(_ ∷ _) x∷l₁↪l₂
                               not-in-not-equal : ∀ {N k : ℕ} {y x' : Fin N} {l : Vec (Fin N) k} → (y ∈ l) → ¬ (x' ∈ l) → y ≢ x'
                               not-in-not-equal y∈l x'∉l y≡x rewrite y≡x = ⊥-elim (x'∉l y∈l)
 
-    m<n : ∀ {m' n'} → suc m' < suc n' → m' < n'
+    m<n : ∀ {m' n'} → Data.Nat.Base._<_ (suc m') (suc n') → Data.Nat.Base._<_ m' n'
     m<n (s≤s suc-m<suc-n₁) = suc-m<suc-n₁
 
 
 record PigeonClash {m n : ℕ} (f : Fin m → Fin n) : Set where
   field
     i j : ℕ
-    i<m : i < m
-    j<m : j < m
+    i<m : Data.Nat.Base._<_ i m
+    j<m : Data.Nat.Base._<_ j m
     nonEq : i ≢ j
     nonInj : f (fromℕ≤ {i} i<m) ≡ f (fromℕ≤ {j} j<m)
 
@@ -135,7 +136,7 @@ tabulate-clash : {m n : ℕ} → (f : Fin m → Fin n) → repeats (tabulate f) 
 tabulate-clash f (base-repeats fzero∈tabulatef∘suc) = {!!}
 tabulate-clash f (rec-repeats x) = {!!}
 
-php : {m n : ℕ} → n < m → (f : Fin m → Fin n) → PigeonClash f
+php : {m n : ℕ} → Data.Nat.Base._<_ n m → (f : Fin m → Fin n) → PigeonClash f
 php = {!!}
 
 
