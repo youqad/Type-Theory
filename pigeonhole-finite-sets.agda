@@ -53,16 +53,14 @@ x  ∈? (y ∷ l)    | no x≠y with x ∈? l
     ∈-to-∪ (there x'∈l') = inj₂ x'∈l'
 
 
--- clash-indices : ∀ {n} → (l : Vec ℕ n) → repeats l
---                 → Σ[ ij ∈ (ℕ × ℕ) ]
---                      (Σ[ i<n-j<n ∈ (proj₁ ij < n × proj₂ ij < n) ]
---                        (lookup-nat (proj₁ ij) l (proj₁ i<n-j<n) ≡ lookup-nat (proj₂ ij) l (proj₂ i<n-j<n)))
--- clash-indices [] ()
--- clash-indices (x ∷ l) (base-repeats x∈l) with index-sure x l x∈l
--- ...                                         | m , (m<n , lookup-nat-m-l≡x) =
---                                               (zero , suc m) , (s≤s z≤n , s≤s m<n) , sym lookup-nat-m-l≡x
--- clash-indices (x ∷ l) (rec-repeats r) = let (i , j) , (i<n , j<n), lookup-nat-i-l≡lookup-nat-j-l = clash-indices l r
---                                         in (suc i , suc j) , (s≤s i<n , s≤s j<n) , lookup-nat-i-l≡lookup-nat-j-l
+clash-indices : ∀ {N n} → (l : Vec (Fin N) n) → repeats l
+                → Σ[ ij ∈ (Fin n × Fin n) ] (lookup (proj₁ ij) l ≡ lookup (proj₂ ij) l)
+clash-indices [] ()
+clash-indices (x ∷ l) (base-repeats x∈l) with index-sure x l x∈l
+...                                         | m , lookup-nat-m-l≡x =
+                                              (zero , suc m) , sym lookup-nat-m-l≡x
+clash-indices (x ∷ l) (rec-repeats r) = let (i , j) , lookup-nat-i-l≡lookup-nat-j-l = clash-indices l r
+                                        in (suc i , suc j) , lookup-nat-i-l≡lookup-nat-j-l
 
 
 
