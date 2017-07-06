@@ -42,7 +42,7 @@ data repeats : ∀ {X : Set} {n} → Vec X n → Set where
 _∈?_ : ∀ {n m} (x : Fin n) (l : Vec (Fin n) m) → Dec (x ∈ l)
 x  ∈? [] = no λ()
 x  ∈? (y ∷ l) with Data.Fin.Properties._≟_ x y
-x  ∈? (.x ∷ l)   | yes refl = yes ?
+x  ∈? (.x ∷ l)   | yes refl = yes {!!}
 x  ∈? (y ∷ l)    | no x≠y with x ∈? l
 ...                        | yes x∈l = yes (there x∈l)
 ...                        | no  x∉l = no  (λ x∈y∷l → [ x≠y , x∉l ]′ (∈-to-∪ x∈y∷l))
@@ -82,19 +82,23 @@ l ↪ l' = ∀ {x} → x ∈ l → x ∈ l'
     lemma₂ y≢x here = ⊥-elim (y≢x refl)
     lemma₂ y≢x (there y∈x∷x₂∷l) = y∈x∷x₂∷l
 ∈-delete {N} x (x₁ ∷ x₂ ∷ l) (there x∈l) = let l' , p = ∈-delete x (x₂ ∷ l) x∈l
-                                        in (x₁ ∷ l') , lemma₃ {N} {l} {p}
+                                        in (x₁ ∷ l') , lemma₃ {N} {l} {p = p}
                                           where
-                                            lemma₃ : ∀ {N : ℕ} {l : Vec (Fin N) _} {p : ∀ {y' x₂ x : Fin N} {x∈l : x ∈ x₂ ∷ l}
-                                                     → y' ≢ x → y' ∈ (x₂ ∷ l) → y' ∈ proj₁ (∈-delete x (x₂ ∷ l) x∈l)}
-                                                     → {y x x₁ x₂ : Fin N} {x∈l : x ∈ x₂ ∷ l}
+                                            lemma₃ : ∀ {N : ℕ} {l : Vec (Fin N) _} {x x₁ x₂ : Fin N} {x∈l : x ∈ x₂ ∷ l}
+                                                     {p : ∀ {y' : Fin N} → y' ≢ x → y' ∈ (x₂ ∷ l)
+                                                     → y' ∈ proj₁ (∈-delete x (x₂ ∷ l) x∈l)}
+                                                     → {y : Fin N}
                                                      → y ≢ x → y ∈ x₁ ∷ x₂ ∷ l
                                                      → y ∈ x₁ ∷ proj₁ (∈-delete x (x₂ ∷ l) x∈l)
                                             lemma₃ y≢x here = here
-                                            lemma₃ {N} {l} {p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
+                                            lemma₃ {N} {l} {p = p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
 
 
 
-pigeonhole-vec : ∀ {N n m : ℕ} (l₁ : Vec (Fin N)  n) (l₂ : Vec (Fin N) m) → l₁ ↪ l₂ → m < n → repeats l₁
+pigeonhole-vec : ∀ {N n m : ℕ} (l₁ : Vec (Fin N) n) (l₂ : Vec (Fin N) m) → l₁ ↪ l₂ → m < n → repeats l₁
+pigeonhole-vec {zero} {.0} {m} [] l₂ l₁↪l₂ ()
+pigeonhole-vec {zero} {.(suc _)} {m} (x ∷ l₁) l₂ l₁↪l₂ m<n with x
+... | ()
 pigeonhole-vec [] l₂ l₁↪l₂ ()
 pigeonhole-vec (x ∷ l₁) [] x∷l₁↪l₂ m<n with (x∷l₁↪l₂ {x} here)
 ... | ()
@@ -108,7 +112,7 @@ pigeonhole-vec {suc n} {suc m} l₁@(x ∷ l₁') l₂@(_ ∷ _) x∷l₁↪l₂
     l₁'↪l₂' {x'} x'∈l₁' = let x'∈l₂ = (x∷l₁↪l₂ (there x'∈l₁')) -- x' ∈ l₂ ≡ l₂' ∪ x
                           in p (not-in-not-equal x'∈l₁' x∉l₁') x'∈l₂
                             where
-                              not-in-not-equal : ∀ {k} {y x' : ℕ} {l : Vec ℕ k} → (y ∈ l) → ¬ (x' ∈ l) → y ≢ x'
+                              not-in-not-equal : ∀ {N k : ℕ} {y x' : Fin N} {l : Vec (Fin N) k} → (y ∈ l) → ¬ (x' ∈ l) → y ≢ x'
                               not-in-not-equal y∈l x'∉l y≡x rewrite y≡x = ⊥-elim (x'∉l y∈l)
 
     m<n : ∀ {m' n'} → suc m' < suc n' → m' < n'
