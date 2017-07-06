@@ -13,7 +13,7 @@ module _ where
   max (suc n) = suc (max n)
 
   emb : {n : ℕ} → Fin n → Fin (suc n)
-  emb {n} zero = zero {n}
+  emb zero = zero
   emb (suc s) = suc (emb s)
 
   suc-sym : ∀ m n → suc (m + n) ≡ m + suc n
@@ -27,6 +27,10 @@ module _ where
 
   0-right-unit₂ : ∀ n → n ≡ n + 0
   0-right-unit₂ n = sym (0-right-unit n)
+
+  inv : {n : ℕ} → Fin n → Fin n
+  inv (zero {n}) = max n
+  inv (suc x) = emb (inv x)
 
   inv₀ : {n : ℕ} → Fin n → _
   inv₀ {n} = invCount {n} 0
