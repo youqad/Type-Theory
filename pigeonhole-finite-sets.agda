@@ -11,8 +11,6 @@ open import Data.Empty
 open import Relation.Binary.PropositionalEquality
 import Relation.Nullary.Decidable as Dec
 
--- {m n : ℕ} → m < n to (f : Fin m → Fin n) → Σ
--- inspired by https://github.com/youqad/Coq_Project/blob/master/pigeonhole.v
 
 module pigeonhole-finite-sets where
 
@@ -20,6 +18,35 @@ data repeats : ∀ {X : Set} {n} → Vec X n → Set where
   base-repeats : ∀ {X : Set} {x : X} {n : ℕ} {l : Vec X n} → x ∈ l → repeats (x ∷ l)
   rec-repeats : ∀ {X : Set} {x : X} {n : ℕ} {l : Vec X n} → repeats l → repeats (x ∷ l)
 
+lookup-nat : ∀  {n : ℕ} → (k : ℕ) → Vec ℕ n → k < n → ℕ
+lookup-nat _ [] ()
+lookup-nat zero (x ∷ xs) k<sucn = x
+lookup-nat (suc k) (x ∷ xs) suck<sucn with suck<sucn
+...                                      | (s≤s k<n) = lookup-nat k xs k<n
+
+
+_∈?_ : ∀ {n} (x : ℕ) (l : Vec ℕ n) → Dec (x ∈ l)
+x  ∈? [] = no λ()
+x  ∈? (y ∷ l) with Data.Nat.Base._≟_ x y
+x  ∈? (.x ∷ l)   | yes refl = yes here
+x  ∈? (y ∷ l)    | no x≠y with x ∈? l
+...                        | yes x∈l = yes (there x∈l)
+...                        | no  x∉l = no  (λ x∈y∷l → [ x≠y , x∉l ]′ (∈-to-∪ x∈y∷l))
+  where
+    ∈-to-∪ : ∀ {x' y' : ℕ} {l'} → x' ∈ (y' ∷ l') → (x' ≡ y') ⊎ (x' ∈ l')
+    ∈-to-∪ here = inj₁ refl
+    ∈-to-∪ (there x'∈l') = inj₂ x'∈l'
+
+
+clash-indices : ∀ {n} → (l : Vec ℕ n) → repeats l → ℕ × ℕ
+clash-indices [] ()
+clash-indices (x ∷ l) (base-repeats x₁) = ?
+clash-indices (x ∷ l) (rec-repeats r) = ?
+
+
+-- with x ∈? l
+-- ...                      | yes x∈l = base-repeats x∈l
+-- ...                      | no _ = 
 
 _↪_ : ∀ {X : Set} {n m} → Vec X n → Vec X m → Set
 l ↪ l' = ∀ {x} → x ∈ l → x ∈ l'
@@ -48,17 +75,6 @@ l ↪ l' = ∀ {x} → x ∈ l → x ∈ l'
                                             lemma₃ {p} y≢x (there y∈x₁∷x₂∷l) = there (p y≢x y∈x₁∷x₂∷l)
 
 
-_∈?_ : ∀ {n} (x : ℕ) (l : Vec ℕ n) → Dec (x ∈ l)
-x  ∈? [] = no λ()
-x  ∈? (y ∷ l) with Data.Nat.Base._≟_ x y
-x  ∈? (.x ∷ l)   | yes refl = yes here
-x  ∈? (y ∷ l)    | no x≠y with x ∈? l
-...                        | yes x∈l = yes (there x∈l)
-...                        | no  x∉l = no  (λ x∈y∷l → [ x≠y , x∉l ]′ (∈-to-∪ x∈y∷l))
-  where
-    ∈-to-∪ : ∀ {x' y' : ℕ} {l'} → x' ∈ (y' ∷ l') → (x' ≡ y') ⊎ (x' ∈ l')
-    ∈-to-∪ here = inj₁ refl
-    ∈-to-∪ (there x'∈l') = inj₂ x'∈l'
 
 pigeonhole-vec : ∀ {n m : ℕ} (l₁ : Vec ℕ n) (l₂ : Vec ℕ m) → l₁ ↪ l₂ → m < n → repeats l₁
 pigeonhole-vec [] l₂ l₁↪l₂ ()
