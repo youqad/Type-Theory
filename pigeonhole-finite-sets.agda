@@ -22,13 +22,13 @@ data repeats : ∀ {X : Set} {n} → Vec X n → Set where
   rec-repeats : ∀ {X : Set} {x : X} {n : ℕ} {l : Vec X n} → repeats l → repeats (x ∷ l)
 
 
-index : ∀ {N n : ℕ} → (Fin N) → Vec (Fin N) n → Maybe (Fin N)
+index : ∀ {N n : ℕ} → (Fin N) → Vec (Fin N) n → Maybe (Fin n)
 index {zero} {_} ()
 index _ [] = nothing
 index {suc N} x (y ∷ ys) with Data.Fin.Properties._≟_ x y
-... | yes _ = just (zero {N})
+... | yes _ = just zero
 ... | no _  with index x ys
-...            | just n = just ? -- suc n
+...            | just n = just (suc n)
 ...            | nothing = nothing
 
 index-sure : ∀ {N n : ℕ} → (x : (Fin N)) → (l : Vec (Fin N) n) → x ∈ l → Σ[ m ∈ (Fin n) ] (lookup {A = Fin N} m l ≡ x)
@@ -43,7 +43,7 @@ index-sure .(lookup m ys) (y ∷ ys) x∈y∷ys | no x≢y | n₁ | (there x∈y
 _∈?_ : ∀ {n m} (x : Fin n) (l : Vec (Fin n) m) → Dec (x ∈ l)
 x  ∈? [] = no λ()
 x  ∈? (y ∷ l) with Data.Fin.Properties._≟_ x y
-x  ∈? (.x ∷ l)   | yes refl = yes {!!}
+x  ∈? (.x ∷ l)   | yes refl = yes here
 x  ∈? (y ∷ l)    | no x≠y with x ∈? l
 ...                        | yes x∈l = yes (there x∈l)
 ...                        | no  x∉l = no  (λ x∈y∷l → [ x≠y , x∉l ]′ (∈-to-∪ x∈y∷l))
