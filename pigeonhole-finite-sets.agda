@@ -3,6 +3,7 @@ open import Data.Nat.Base using (ℕ; zero; suc; z≤n; s≤s; _<_ ; _≤_)
 open import Relation.Nullary
 open import Relation.Binary
 open import Data.Vec
+open import Data.Vec.Properties
 open import Data.Product
 open import Data.Sum using ([_,_]′; inj₁; inj₂; _⊎_)
 open import Data.Empty
@@ -24,6 +25,7 @@ lookup-nat _ [] ()
 lookup-nat zero (x ∷ xs) k<sucn = x
 lookup-nat (suc k) (x ∷ xs) suck<sucn with suck<sucn
 ...                                      | (s≤s k<n) = lookup-nat k xs k<n
+
 
 
 index : ∀ {n : ℕ} → ℕ → Vec ℕ n → Maybe ℕ
@@ -61,9 +63,14 @@ clash-indices : ∀ {n} → (l : Vec ℕ n) → repeats l
                      (Σ[ i<n-j<n ∈ (proj₁ ij < n × proj₂ ij < n) ]
                        (lookup-nat (proj₁ ij) l (proj₁ i<n-j<n) ≡ lookup-nat (proj₂ ij) l (proj₂ i<n-j<n)))
 clash-indices [] ()
-clash-indices (x ∷ l) (base-repeats x∈l) = ({!!} , {!!}) , {!!} , {!!} -- suc (index-sure x l x∈l)
-clash-indices (x ∷ l) (rec-repeats r) = let n , m = clash-indices l r in {!!} -- suc n , suc m
+clash-indices (x ∷ l) (base-repeats x∈l) with index-sure x l x∈l
+...                                         | m , (m<n , lookup-nat-m-l≡x) =
+                                              (zero , suc m) , (s≤s z≤n , s≤s m<n) , sym lookup-nat-m-l≡x
+clash-indices (x ∷ l) (rec-repeats r) = let (i , j) , (i<n , j<n), lookup-nat-i-l≡lookup-nat-j-l = clash-indices l r
+                                        in (suc i , suc j) , (s≤s i<n , s≤s j<n) , lookup-nat-i-l≡lookup-nat-j-l
 
+
+lookup-nat-lookup : ∀ {l} {n k} → k<n → lookup-nat n l k<n = lookup 
 
 
 _↪_ : ∀ {X : Set} {n m} → Vec X n → Vec X m → Set
@@ -124,8 +131,7 @@ record PigeonClash {m n : ℕ} (f : Fin m → Fin n) : Set where
     nonInj : f (fromℕ≤ {i} i<m) ≡ f (fromℕ≤ {j} j<m)
 
 tabulate-↪ : {m n : ℕ} → (f : Fin m → Fin n) → (tabulate f) ↪ allFin n
-tabulate-↪ f {.(f zero)} here = {!!}
-tabulate-↪ f {x} (there x∈tabulatef) = {!!}
+tabulate-↪ f {x} _ = ∈-allFin x
 
 
 tabulate-clash : {m n : ℕ} → (f : Fin m → Fin n) → repeats (tabulate f) → PigeonClash f
