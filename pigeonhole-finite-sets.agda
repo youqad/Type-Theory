@@ -6,6 +6,7 @@ open import Data.Vec
 open import Data.Product
 open import Data.Sum using ([_,_]′; inj₁; inj₂; _⊎_)
 open import Data.Empty
+open import Data.Maybe
 
 
 open import Relation.Binary.PropositionalEquality
@@ -25,6 +26,23 @@ lookup-nat (suc k) (x ∷ xs) suck<sucn with suck<sucn
 ...                                      | (s≤s k<n) = lookup-nat k xs k<n
 
 
+index : ∀ {n : ℕ} → ℕ → Vec ℕ n → Maybe ℕ
+index _ [] = nothing
+index x (y ∷ ys) with Data.Nat.Base._≟_ x y
+... | yes _ = just zero
+... | no _  with index x ys
+...            | just n = just (suc n)
+...            | nothin = nothing
+
+index-sure : ∀ {n : ℕ} → (x : ℕ) → (l : Vec ℕ n) → x ∈ l → Σ[ m ∈ ℕ ] (Σ[ m<n ∈ m < n ] (lookup-nat m l m<n ≡ x))
+index-sure _ [] ()
+index-sure x (y ∷ ys) x∈y∷ys with Data.Nat.Base._≟_ x y
+... | yes x≡y = zero , ( s≤s z≤n , sym x≡y )
+... | no x≢y with index x ys | x∈y∷ys
+...             | _ | here = ⊥-elim (x≢y refl)
+...             | n | there x∈ys with index-sure x ys x∈ys
+index-sure .(lookup-nat m ys m<n) (y ∷ ys) x∈y∷ys | no x≢y | n₁ | (there x∈ys) | (m , m<n , refl) = suc m , (s≤s m<n , refl)
+
 _∈?_ : ∀ {n} (x : ℕ) (l : Vec ℕ n) → Dec (x ∈ l)
 x  ∈? [] = no λ()
 x  ∈? (y ∷ l) with Data.Nat.Base._≟_ x y
@@ -38,15 +56,15 @@ x  ∈? (y ∷ l)    | no x≠y with x ∈? l
     ∈-to-∪ (there x'∈l') = inj₂ x'∈l'
 
 
-clash-indices : ∀ {n} → (l : Vec ℕ n) → repeats l → ℕ × ℕ
+clash-indices : ∀ {n} → (l : Vec ℕ n) → repeats l
+                → Σ[ ij ∈ (ℕ × ℕ) ]
+                     (Σ[ i<n-j<n ∈ (proj₁ ij < n × proj₂ ij < n) ]
+                       (lookup-nat (proj₁ ij) l (proj₁ i<n-j<n) ≡ lookup-nat (proj₂ ij) l (proj₂ i<n-j<n)))
 clash-indices [] ()
-clash-indices (x ∷ l) (base-repeats x₁) = ?
-clash-indices (x ∷ l) (rec-repeats r) = ?
+clash-indices (x ∷ l) (base-repeats x∈l) = ({!!} , {!!}) , {!!} , {!!} -- suc (index-sure x l x∈l)
+clash-indices (x ∷ l) (rec-repeats r) = let n , m = clash-indices l r in {!!} -- suc n , suc m
 
 
--- with x ∈? l
--- ...                      | yes x∈l = base-repeats x∈l
--- ...                      | no _ = 
 
 _↪_ : ∀ {X : Set} {n m} → Vec X n → Vec X m → Set
 l ↪ l' = ∀ {x} → x ∈ l → x ∈ l'
