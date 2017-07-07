@@ -137,6 +137,6 @@ tabulate-clash f repeats-tabulate = let (i , j) , (i≢j , lookup-i≡lookup-j) 
                                          nonInj = trans (trans (sym fi) lookup-i≡lookup-j) fj }
 
 php : {m n : ℕ} → Data.Nat.Base._<_ n m → (f : Fin m → Fin n) → PigeonClash f
-php = {!!}
+php {m} {n} n<m f = tabulate-clash f (pigeonhole-vec (tabulate f) (allFin n) (tabulate-↪ f) n<m) 
 
 
