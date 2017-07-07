@@ -54,13 +54,13 @@ x  ∈? (y ∷ l)    | no x≠y with x ∈? l
 
 
 clash-indices : ∀ {N n} → (l : Vec (Fin N) n) → repeats l
-                → Σ[ ij ∈ (Fin n × Fin n) ] (lookup (proj₁ ij) l ≡ lookup (proj₂ ij) l)
+                → Σ[ ij ∈ (Fin n × Fin n) ] ((proj₁ ij ≢ proj₂ ij) × (lookup (proj₁ ij) l ≡ lookup (proj₂ ij) l))
 clash-indices [] ()
 clash-indices (x ∷ l) (base-repeats x∈l) with index-sure x l x∈l
 ...                                         | m , lookup-nat-m-l≡x =
-                                              (zero , suc m) , sym lookup-nat-m-l≡x
-clash-indices (x ∷ l) (rec-repeats r) = let (i , j) , lookup-nat-i-l≡lookup-nat-j-l = clash-indices l r
-                                        in (suc i , suc j) , lookup-nat-i-l≡lookup-nat-j-l
+                                              (zero , suc m) , ( (λ ()) , sym lookup-nat-m-l≡x)
+clash-indices (x ∷ l) (rec-repeats r) = let (i , j) , (i≢j , lookup-nat-i-l≡lookup-nat-j-l) = clash-indices l r
+                                        in (suc i , suc j) , ((λ suc-i≡suc-j → i≢j (suc-injective suc-i≡suc-j)) , lookup-nat-i-l≡lookup-nat-j-l)
 
 
 
@@ -120,19 +120,21 @@ pigeonhole-vec {suc n} {suc m} l₁@(x ∷ l₁') l₂@(_ ∷ _) x∷l₁↪l₂
 
 record PigeonClash {m n : ℕ} (f : Fin m → Fin n) : Set where
   field
-    i j : ℕ
-    i<m : Data.Nat.Base._<_ i m
-    j<m : Data.Nat.Base._<_ j m
+    i j : Fin m
     nonEq : i ≢ j
-    nonInj : f (fromℕ≤ {i} i<m) ≡ f (fromℕ≤ {j} j<m)
+    nonInj : f i ≡ f j
 
 tabulate-↪ : {m n : ℕ} → (f : Fin m → Fin n) → (tabulate f) ↪ allFin n
 tabulate-↪ f {x} _ = ∈-allFin x
 
 
 tabulate-clash : {m n : ℕ} → (f : Fin m → Fin n) → repeats (tabulate f) → PigeonClash f
-tabulate-clash f (base-repeats fzero∈tabulatef∘suc) = {!!}
-tabulate-clash f (rec-repeats x) = {!!}
+tabulate-clash f repeats-tabulate = let (i , j) , (i≢j , lookup-i≡lookup-j) = clash-indices (tabulate f) repeats-tabulate
+                                    in let fi = lookup∘tabulate f (proj₁ (proj₁ (clash-indices (tabulate f) repeats-tabulate)))
+                                    in let fj = lookup∘tabulate f (proj₂ (proj₁ (clash-indices (tabulate f) repeats-tabulate)))
+                                    in record
+                                       { i = i ; j = j ; nonEq = i≢j ;
+                                         nonInj = trans (trans (sym fi) lookup-i≡lookup-j) fj }
 
 php : {m n : ℕ} → Data.Nat.Base._<_ n m → (f : Fin m → Fin n) → PigeonClash f
 php = {!!}
